@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+
+m = Voltometer::Montior.create
+
+m.start
+sleep 5
+
+m.stop
