@@ -1,9 +1,11 @@
 #!/usr/bin/env ruby
 
+require 'voltometer'
 
-m = Voltometer::Montior.create
+monitor = Voltometer::Monitor.new('/Users/lyon/test/ftp')
 
-m.start
-sleep 5
+trap(:QUIT) { monitor.stop; puts "bye\n\n" }
+trap(:INT)  { monitor.stop; puts "bye\n\n" }
 
-m.stop
+monitor.start
+
