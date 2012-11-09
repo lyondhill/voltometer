@@ -20,13 +20,13 @@ echo '********************'
 echo 'pulling git_repo'
 echo '********************'
 
-mkdir -p /var/www
+mkdir -p /usr/local/src
 
-chdir /var/www
+chdir /usr/local/src
 
-git clone git://github.com/lyondhill/voltrak.git
+git clone git://github.com/lyondhill/voltometer.git
 
-chdir /var/www/voltrak
+chdir /usr/local/src/voltometer
 echo '********************'
 echo 'setting up chef stuff'
 echo '********************'
@@ -37,33 +37,33 @@ mkdir /etc/chef/
 
 cat > /etc/chef/solo.rb <<END
 file_cache_path "/var/chef-solo"
-cookbook_path "/var/www/voltrak/cookbooks"
+cookbook_path "/usr/local/src/voltometer/cookbooks"
 role_path "/var/chef-solo/roles"
 data_bag_path "/var/chef-solo/data_bags"
 END
 
 # build your run list like so
 
-cat > ~/node.json <<END
+cat > ~/voltometer_node.json <<END
 {
-  "run_list": [ "recipe[ubuntu]","recipe[ruby]","recipe[mongodb]","recipe[redis]" ]
+  "run_list": [ "recipe[ubuntu]","recipe[ruby]"]
 }
 END
 
 # run chef solo like this
 
-chef-solo -j ~/node.json
+chef-solo -j ~/voltometer_node.json
 echo '********************'
 echo 'now run the bundle command'
 echo '********************'
 
-sudo bundle install
+bash bundle install
 
 echo '********************'
 echo 'Finally move the startup script'
 echo '********************'
 
-curl -o /etc/init/voltrak.conf https://raw.github.com/lyondhill/voltrak/master/etc/init/voltrak.conf
+curl -o /etc/init/voltometer.conf https://raw.github.com/lyondhill/voltometer/master/etc/init/voltometer.conf
 
 echo '********************'
 echo '--------------------'
