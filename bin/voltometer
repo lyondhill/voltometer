@@ -3,7 +3,7 @@ require 'voltometer'
 
 listen_folder = ARGV.first || '/Users/lyon/test/ftp'
 
-monitor = Voltometer::Monitor.new('/Users/lyon/test/ftp')
+monitor = Voltometer::Monitor.new(listen_folder)
 
 trap(:QUIT) { monitor.stop; puts "bye\n\n" }
 trap(:INT)  { monitor.stop; puts "bye\n\n" }
