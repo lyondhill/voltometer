@@ -19,5 +19,6 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'moped'
   gem.add_dependency 'listen'
+  gem.add_dependency 'pry'
 
 end

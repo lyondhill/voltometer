@@ -6,6 +6,8 @@ require 'time'
 require 'moped'
 require 'listen'
 
+require 'pry'
+
 module Voltometer
   class Monitor
     attr_accessor :watch_folder
@@ -50,7 +52,7 @@ module Voltometer
         row.each do |key, value|
           last_read_time(value) if key == "Timestamp"
           puts "#{last_read_time} Key: #{key}, Value: #{value}" unless key == 'Timestamp' || key == 'TZ'
-
+          insert_data(last_read_time, key, value)
         end
       end
       puts
@@ -74,6 +76,7 @@ module Voltometer
     def insert_data(time, frame_cell, voltage)
       frame_bson = frame_id(frame_cell.split('|').first)
       cell_bson = cell_id(frame_bson, frame_cell.split('|').last)
+      binding.pry
       insert_report(time, cell_bson, voltage)
     end
 
