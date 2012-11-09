@@ -47,24 +47,22 @@ module Voltometer
     end
 
     def file_added(file)
-      log "added: #{file}"
-      CSV.foreach(file, headers: :first_row) do |row|
-        row.each do |key, value|
-          last_read_time(value) if key == "Timestamp"
-          unless key == 'Timestamp' || key == 'TZ'
-            log "#{last_read_time} Key: #{key}, Value: #{value}" 
-            insert_data(last_read_time, key, value) 
+      begin
+        log "added: #{file}"
+        CSV.foreach(file, headers: :first_row) do |row|
+          row.each do |key, value|
+            last_read_time(value) if key == "Timestamp"
+            unless key == 'Timestamp' || key == 'TZ'
+              log "#{last_read_time} Key: #{key}, Value: #{value}" 
+              insert_data(last_read_time, key, value) 
+            end
           end
         end
-      end
-      log
-    end
-
-    def last_read_time(time =  nil)
-      if time
-        @last_read_time = Time.parse(time)
-      else
-        @last_read_time
+        remove_file(file)
+        log
+      rescue Exception => e
+        log "ERROR #{e.inspect}"
+        log e.backtrace.join("\n")
       end
     end
 
@@ -74,6 +72,19 @@ module Voltometer
     end
 
   protected
+
+    def remove_file(file)
+      log "removing #{file}"
+      File.delete(file)
+    end
+
+    def last_read_time(time =  nil)
+      if time
+        @last_read_time = Time.parse(time)
+      else
+        @last_read_time
+      end
+    end
 
     def insert_data(time, frame_cell, voltage)
       frame_bson = frame_id(frame_cell.split('|').first)
