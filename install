@@ -57,7 +57,12 @@ echo '********************'
 echo 'now run the bundle command'
 echo '********************'
 
-bash bundle install
+bash --login
+chdir /usr/local/src/voltometer
+
+bundle install
+
+rake install
 
 echo '********************'
 echo 'Finally move the startup script'
