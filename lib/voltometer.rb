@@ -41,21 +41,23 @@ module Voltometer
     end
 
     def file_modified(file)
-      puts "modified: #{file}"
-      puts `cat #{file}`
-      puts
+      log "modified: #{file}"
+      log `cat #{file}`
+      log
     end
 
     def file_added(file)
-      puts "added: #{file}"
+      log "added: #{file}"
       CSV.foreach(file, headers: :first_row) do |row|
         row.each do |key, value|
           last_read_time(value) if key == "Timestamp"
-          puts "#{last_read_time} Key: #{key}, Value: #{value}" unless key == 'Timestamp' || key == 'TZ'
-          insert_data(last_read_time, key, value)
+          unless key == 'Timestamp' || key == 'TZ'
+            log "#{last_read_time} Key: #{key}, Value: #{value}" 
+            insert_data(last_read_time, key, value) 
+          end
         end
       end
-      puts
+      log
     end
 
     def last_read_time(time =  nil)
@@ -67,8 +69,8 @@ module Voltometer
     end
 
     def file_removed(file)
-      puts "removed: #{file}"
-      puts
+      log "removed: #{file}"
+      log
     end
 
   protected
@@ -76,18 +78,17 @@ module Voltometer
     def insert_data(time, frame_cell, voltage)
       frame_bson = frame_id(frame_cell.split('|').first)
       cell_bson = cell_id(frame_bson, frame_cell.split('|').last)
-      binding.pry
       insert_report(time, cell_bson, voltage)
     end
 
     def insert_report(time, cell_bson, voltage)
-      moped[:reports].insert(_id: Moped::BSON::ObjectId.new, report_time: time, cell_id: cell_bson, voltage: voltage)
+      moped[:reports].insert(_id: Moped::BSON::ObjectId.new, report_time: time, cell_id: cell_bson, voltage: voltage.to_f)
     end
 
     def cell_id(frame_bson, cell_name)
-      unless cell = moped[:cells].find(:name => cell_name).first
-        moped[:cells].insert(:name => cell_name, _id: Moped::BSON::ObjectId.new, plant_id: frame_bson)
-        cell ||= moped[:cells].find(:name => cell_name).first
+      unless cell = moped[:cells].find(:uid => cell_name).first
+        moped[:cells].insert(uid: cell_name, _id: Moped::BSON::ObjectId.new, frame_id: frame_bson)
+        cell = moped[:cells].find(uid: cell_name).first
       end
       cell['_id']
     end
@@ -112,6 +113,10 @@ module Voltometer
       end
     end
 
+    def log(msg = nil)
+      puts msg if ENV['DEVELOPMENT']
+    end
+
   private
 
     def listener
@@ -125,11 +130,11 @@ module Voltometer
     def moped(reconnect = false)
       if reconnect
         @session ||= ::Moped::Session.new([ "127.0.0.1:27017" ])
-        @session.use( ENV['development'] == true ? 'voltrak_development' : 'voltrak_production')
+        @session.use( ENV['DEVELOPMENT'] ? 'voltrak_development' : 'voltrak_production')
         @session
       else
         @session ||= ::Moped::Session.new([ "127.0.0.1:27017" ])
-        @session.use( ENV['development'] == true ? 'voltrak_development' : 'voltrak_production')
+        @session.use( ENV['DEVELOPMENT'] ? 'voltrak_development' : 'voltrak_production')
         @session
       end
     end

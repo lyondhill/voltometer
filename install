@@ -1,0 +1,76 @@
+#!/bin/bash
+
+echo '********************'
+echo 'update apt-get'
+echo '********************'
+
+apt-get update
+
+echo '********************'
+echo 'installing chef'
+echo '********************'
+
+curl -L http://www.opscode.com/chef/install.sh | bash
+echo '********************'
+echo 'install git'
+echo '********************'
+
+apt-get -y install git
+echo '********************'
+echo 'pulling git_repo'
+echo '********************'
+
+mkdir -p /var/www
+
+chdir /var/www
+
+git clone git://github.com/lyondhill/voltrak.git
+
+chdir /var/www/voltrak
+echo '********************'
+echo 'setting up chef stuff'
+echo '********************'
+
+mkdir /etc/chef/
+
+# put cookbooks, roles and data bags in the directories shown below, feel free to change them to whatever works best for you.
+
+cat > /etc/chef/solo.rb <<END
+file_cache_path "/var/chef-solo"
+cookbook_path "/var/www/voltrak/cookbooks"
+role_path "/var/chef-solo/roles"
+data_bag_path "/var/chef-solo/data_bags"
+END
+
+# build your run list like so
+
+cat > ~/node.json <<END
+{
+  "run_list": [ "recipe[ubuntu]","recipe[ruby]","recipe[mongodb]","recipe[redis]" ]
+}
+END
+
+# run chef solo like this
+
+chef-solo -j ~/node.json
+echo '********************'
+echo 'now run the bundle command'
+echo '********************'
+
+sudo bundle install
+
+echo '********************'
+echo 'Finally move the startup script'
+echo '********************'
+
+curl -o /etc/init/voltrak.conf https://raw.github.com/lyondhill/voltrak/master/etc/init/voltrak.conf
+
+echo '********************'
+echo '--------------------'
+echo 'FINNISHED!'
+echo '--------------------'
+echo '********************'
+
+
+
+

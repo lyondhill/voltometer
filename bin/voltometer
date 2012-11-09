@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-
 require 'voltometer'
 
 monitor = Voltometer::Monitor.new('/Users/lyon/test/ftp')
