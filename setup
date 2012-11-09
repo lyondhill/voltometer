@@ -1,0 +1,65 @@
+#!/bin/bash
+
+echo '********************'
+echo 'update apt-get'
+echo '********************'
+
+apt-get update
+
+echo '********************'
+echo 'installing chef'
+echo '********************'
+
+curl -L http://www.opscode.com/chef/install.sh | bash
+echo '********************'
+echo 'install git'
+echo '********************'
+
+apt-get -y install git
+echo '********************'
+echo 'pulling git_repo'
+echo '********************'
+
+mkdir -p /usr/local/src
+
+chdir /usr/local/src
+
+git clone git://github.com/lyondhill/voltometer.git
+
+chdir /usr/local/src/voltometer
+echo '********************'
+echo 'setting up chef stuff'
+echo '********************'
+
+mkdir /etc/chef/
+
+# put cookbooks, roles and data bags in the directories shown below, feel free to change them to whatever works best for you.
+
+cat > /etc/chef/solo.rb <<END
+file_cache_path "/var/chef-solo"
+cookbook_path "/usr/local/src/voltometer/cookbooks"
+role_path "/var/chef-solo/roles"
+data_bag_path "/var/chef-solo/data_bags"
+END
+
+# build your run list like so
+
+cat > ~/voltometer_node.json <<END
+{
+  "run_list": [ "recipe[ubuntu]","recipe[ruby]"]
+}
+END
+
+# run chef solo like this
+
+chef-solo -j ~/voltometer_node.json
+
+echo '********************'
+echo '--------------------'
+echo 'FINNISHED!'
+echo '--------------------'
+echo '********************'
+
+echo 'Now you must restart and then run:'
+echo '`curl -L https://raw.github.com/lyondhill/voltometer/master/setup | sh`'
+
