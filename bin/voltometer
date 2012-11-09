@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 require 'voltometer'
 
+listen_folder = ARGV.first || '/Users/lyon/test/ftp'
+
 monitor = Voltometer::Monitor.new('/Users/lyon/test/ftp')
 
 trap(:QUIT) { monitor.stop; puts "bye\n\n" }
