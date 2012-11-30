@@ -12,9 +12,13 @@ module Voltometer
   class Monitor
     attr_accessor :watch_folder
     attr_accessor :active
+    attr_accessor :names, :plants, :frames, :cells
 
     def initialize(watch_folder)
       self.watch_folder = watch_folder
+      self.plants = {}
+      self.frames = {}
+      self.cells = {}
       moped
       setup_listener
     end
@@ -86,42 +90,62 @@ module Voltometer
       end
     end
 
-    def insert_data(time, frame_cell, voltage)
-      frame_bson = frame_id(frame_cell.split('|').first)
-      cell_bson = cell_id(frame_bson, frame_cell.split('|').last)
-      insert_report(time, cell_bson, voltage)
+    # data looks like this time, "PlantName|FrameName|CellName"
+    def insert_data(time, names, voltage)
+      self.names = names
+      insert_report(time, voltage)
     end
 
-    def insert_report(time, cell_bson, voltage)
-      moped[:reports].insert(_id: Moped::BSON::ObjectId.new, report_time: time, cell_id: cell_bson, voltage: voltage.to_f)
+    def insert_report(time, voltage)
+      moped[:reports].insert(_id: Moped::BSON::ObjectId.new, report_time: time, cell_id: cell_id, voltage: voltage.to_f)
     end
 
-    def cell_id(frame_bson, cell_name)
-      unless cell = moped[:cells].find(:uid => cell_name).first
-        moped[:cells].insert(uid: cell_name, _id: Moped::BSON::ObjectId.new, frame_id: frame_bson)
-        cell = moped[:cells].find(uid: cell_name).first
+    def cell_id
+      if id = self.cells[self.names]
+        id
+      else
+        unless cell = moped[:cells].find(uid: cell_name, frame_id: frame_id).first
+          moped[:cells].insert(uid: cell_name, _id: Moped::BSON::ObjectId.new, frame_id: frame_id)
+          cell = moped[:cells].find(uid: cell_name).first
+        end
+        self.cells[self.names] = cell['_id']
       end
-      cell['_id']
     end
 
-    def frame_id(frame_name)
-      unless frame = moped[:frames].find(:name => frame_name).first
-        moped[:frames].insert(:name => frame_name, _id: Moped::BSON::ObjectId.new, plant_id: plant_id)
-        frame ||= moped[:frames].find(:name => frame_name).first
+    def frame_id
+      if id = self.frames[self.names]
+        id
+      else
+        unless frame = moped[:frames].find(name: frame_name, plant_id: plant_id).first
+          moped[:frames].insert(name: frame_name, _id: Moped::BSON::ObjectId.new, plant_id: plant_id)
+          frame = moped[:frames].find(name: frame_name).first
+        end
+        self.frames[self.names] = frame['_id']
       end
-      frame['_id']
     end
 
     def plant_id
-      if @plant
-        @plant['_id']
+      if id = self.plants[self.names]
+        id
       else
-        unless @plant = moped[:plants].find().first
-          moped[:plants].insert(name: '01') 
+        unless @plant = moped[:plants].find(name: plant_name).first
+          moped[:plants].insert(name: plant_name) 
           @plant = moped[:plants].find().first
         end
-        @plant['_id']
+        self.plants[self.names] = @plant['_id']
       end
+    end
+
+    def plant_name
+      self.names.split('|')[0]
+    end
+
+    def frame_name
+      self.names.split('|')[1]
+    end
+
+    def cell_name
+      self.names.split('|')[2]
     end
 
     def log(msg = nil)
