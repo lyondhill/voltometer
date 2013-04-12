@@ -15,6 +15,7 @@ module Voltometer
     attr_accessor :names, :plants, :frames, :cells
 
     def initialize(watch_folder)
+      log "watching: #{watch_folder}"
       self.watch_folder = watch_folder
       self.plants = {}
       self.frames = {}
