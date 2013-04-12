@@ -158,7 +158,8 @@ module Voltometer
   private
 
     def listener
-      @listener ||= Listen.to(self.watch_folder, :filter => /\.csv$/)
+      @listener ||= Listen.to(self.watch_folder)
+      # @listener ||= Listen.to(self.watch_folder, :filter => /\.csv$/)
     end
 
     def on_change(&block)
