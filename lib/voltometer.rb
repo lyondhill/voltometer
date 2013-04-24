@@ -35,7 +35,7 @@ module Voltometer
 
     def start
       log "starting listener"
-      listener.start
+      listener.start(false)
       log "listener started"
       self.active = true
       while self.active
