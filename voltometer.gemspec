@@ -18,6 +18,6 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
 
   gem.add_dependency 'moped'
-  gem.add_dependency 'listen'
+  gem.add_dependency 'listen', '0.5.3'
   gem.add_dependency 'rb-inotify'
 end
