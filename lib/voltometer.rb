@@ -4,6 +4,7 @@ require 'csv'
 require 'time'
 
 require 'moped'
+require 'rb-inotify'
 require 'listen'
 
 require 'pry'
@@ -36,7 +37,6 @@ module Voltometer
       log "starting listener"
       listener.start
       log "listener started"
-      binding.pry
       self.active = true
       while self.active
         sleep(1)
@@ -160,7 +160,7 @@ module Voltometer
 
     def listener
       # @listener ||= Listen.to(self.watch_folder, :filter => /\.(csv|CSV)$/)
-      @listener ||= Listen.to(self.watch_folder)
+      @listener ||= Listen.to(self.watch_folder, force_polling: true)
     end
 
     def on_change(&block)
