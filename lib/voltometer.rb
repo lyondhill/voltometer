@@ -36,6 +36,7 @@ module Voltometer
       log "starting listener"
       listener.start
       log "listener started"
+      binding.pry
       self.active = true
       while self.active
         sleep(1)
