@@ -4,7 +4,6 @@ require 'csv'
 require 'time'
 
 require 'moped'
-require 'rb-inotify'
 require 'listen'
 
 require 'pry'
