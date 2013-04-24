@@ -1,0 +1,28 @@
+PATH
+  remote: .
+  specs:
+    voltometer (0.0.1)
+      listen
+      moped
+      rb-inotify
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    ffi (1.8.1)
+    listen (1.0.2)
+      rb-fsevent (>= 0.9.3)
+      rb-inotify (>= 0.9)
+      rb-kqueue (>= 0.2)
+    moped (1.4.5)
+    rb-fsevent (0.9.3)
+    rb-inotify (0.9.0)
+      ffi (>= 0.5.0)
+    rb-kqueue (0.2.0)
+      ffi (>= 0.5.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  voltometer!
