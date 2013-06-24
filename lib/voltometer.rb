@@ -1,4 +1,5 @@
 require "voltometer/version"
+require 'simple-graphite'
 
 require 'csv'
 require 'time'
@@ -21,6 +22,7 @@ module Voltometer
       self.frames = {}
       self.cells = {}
       moped
+      graphite
       setup_listener
     end
 
@@ -97,6 +99,9 @@ module Voltometer
     def insert_data(time, names, voltage)
       self.names = names
       insert_report(time, voltage)
+      graphite.push_to_graphite do |g|  
+        g.puts "#{names.gsub(/ /, '-').gsub(/\|/, '.')} #{voltage} #{g.time_now}"
+      end
     end
 
     def insert_report(time, voltage)
@@ -164,6 +169,10 @@ module Voltometer
 
     def on_change(&block)
       listener.change(&block)
+    end
+
+    def graphite
+      @graph ||= Graphite.new({:host => "127.0.0.1", :port => 2003})
     end
 
     def moped(reconnect = false)

@@ -5,15 +5,17 @@ PATH
       listen (= 0.5.3)
       moped
       rb-inotify
+      simple-graphite
 
 GEM
   remote: https://rubygems.org/
   specs:
-    ffi (1.8.1)
+    ffi (1.9.0)
     listen (0.5.3)
-    moped (1.4.5)
+    moped (1.5.0)
     rb-inotify (0.9.0)
       ffi (>= 0.5.0)
+    simple-graphite (2.1.0)
 
 PLATFORMS
   ruby
