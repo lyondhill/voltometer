@@ -100,7 +100,7 @@ module Voltometer
       self.names = names
       insert_report(time, voltage)
       graphite.push_to_graphite do |g|  
-        g.puts "#{names.gsub(/ /, '-').gsub(/\|/, '.')} #{voltage} #{g.time_now}"
+        g.puts "#{names.gsub(/ /, '-').gsub(/\|/, '.')} #{voltage} #{graphite.time_now}"
       end
     end
 
